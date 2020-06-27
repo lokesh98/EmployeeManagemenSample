@@ -1,0 +1,207 @@
+﻿
+@{
+    ViewBag.Title = "";
+}
+
+<h4>Employee Managment</h4>
+<br />
+
+
+<div class="container">
+   <div class="row">
+       <div class="panel panel-primary">
+           <div class="panel-heading">Uploaed Excel/ CSV Files</div>
+       </div>
+       <div class="panel-body">
+           <p> <span style="color:red">Note: **</span>Please download the excel template and fill data. Then you can upload it.</p> 
+       </div>
+   </div>
+</div>
+
+
+<div class="pull-right">
+    <div class="row">
+       
+        <div class="col-lg-6">
+            <input type="button" value="Download Template" class="btn btn-primary"  id="btnDownloadTemplate"/>
+        </div>
+        <div class="col-md-6">
+            <button type="button" class="btn btn-primary" id="btn_upload_form" onclick="showUploadForm()">
+                <i class="glyphicon glyphicon-plus"></i>  Upload File
+            </button>
+        </div>
+    </div>
+    
+
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade bd-example-modal-lg" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Upload Files</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div>
+                    @using (Html.BeginForm("Index", "Employee", FormMethod.Post, new { @class = "form-inline", @id = "fromEmployeeExcel", @enctype = "multipart/form-data", @onsubmit = "return true" }))
+                    {
+                        <div class="row">
+                            <div class="col-md-6">
+                                <input type="file" id="fUpload" name="file" class="form-control" />
+                            </div>
+                            <div class="col-md-3">
+                                <input type="button" id="btn_upload" onclick="UploadExcel()" class="btn btn-success" value="Upload" />
+                            </div>
+                            <input type="hidden" name="client_id" value="@ViewBag.Clientid" />
+                        </div>
+                    }
+                    <div id="excel_list"></div>
+
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btn_save_excel" onclick="SaveExcel()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<br />
+
+<br />
+<br />
+
+
+<script type="text/javascript">
+
+    $("#btn_upload").on("click", function () {
+        $('#myModal').modal();
+        $('#excel_list').html("");
+        // $('#fUpload').val('');
+        $("#btn_save_excel").hide();
+    });
+
+
+    function showUploadForm() {
+        $('#myModal').modal({
+            show: 'false'
+        });
+        $("#btn_save_excel").hide();
+        $('#excel_list').html("");
+        $('#fUpload').val('');
+
+    }
+
+
+    function UploadExcel() {
+        $('#excel_list').hide();
+        var fileExtension = ['xls', 'xlsx', 'csv'];
+        var filename = $('#fUpload').val();
+        if (filename.length == 0) {
+            alert("Please select a file.");
+            return false;
+        }
+        else {
+            var extension = filename.replace(/^.*\./, '');
+            if ($.inArray(extension, fileExtension) == -1) {
+                alert("Please select only excel or csv files.");
+                return false;
+            }
+        }
+
+        var form = $('#fromEmployeeExcel')[0];
+        var fdata = new FormData(form);
+        fdata.append("file_name1", $('#file_name1').val());
+
+
+        $.ajax({
+            type: "POST",
+            enctype: 'multipart/form-data',
+            url: "/Employee/UploadEmployeeInfo",
+
+            data: fdata,
+            contentType: false,
+            processData: false,
+            cache: false,
+            success: function (data) {
+                $("#btn_save_excel").show();
+                $('#excel_list').hide();
+                $('#excel_list').slideDown();
+                $('#excel_list').html(data);
+
+            },
+            error: function (data) {
+                $('#excel_list').hide();
+                $('#excel_list').slideDown();
+                $('#excel_list').html(data.responseText);
+            }
+        });
+    }
+
+
+    function SaveExcel() {
+        var empList = new Array();
+        var IsError = false;
+        $("#tblEmployee TBODY TR").each(function () {
+            var row = $(this);
+            var emp = {};
+            emp.EmployeeId = row.find("TD").eq(0).html().trim();
+            emp.FullName = row.find("TD").eq(1).html().trim();
+            emp.DateofBirth = row.find("TD").eq(2).html().trim();
+            emp.Gender = row.find("TD").eq(3).html().trim();
+            emp.Salary = row.find("TD").eq(4).html().trim();
+            emp.Designation = row.find("TD").eq(5).html().trim();
+            emp.Error_Column = row.find("TD").eq(6).html().trim();
+            emp.Error_Msg = row.find("TD").eq(7).html().trim();
+            if (emp.Error_Column != "") {
+                IsError = true
+
+            }
+            empList.push(emp);
+        });
+
+        if (!IsError) {
+            $.ajax({
+                type: "POST",
+                url: "/Employee/SaveEmployee",
+                data: JSON.stringify(empList),
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                success: function (res) {
+                    $('#myModal').modal('hide');
+                    window.location = '/ManageEmployee/Index';
+                }
+            });
+        } else {
+            alert('Error Exists in File. Please Re-Upload Data.');
+            $('#excel_list').html("");
+        }
+
+
+
+    }
+
+    $("#btnDownloadTemplate").on("click", function () {
+         $.ajax({
+            type: "POST",
+            url: "/Employee/GenerateTemplate",
+            data: "",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                window.location = '/Employee/DownloadTemplate';
+
+            },
+            error: function () {
+
+                window.location = '/Home/Unauthorized';
+            }
+        });
+    })
+</script>

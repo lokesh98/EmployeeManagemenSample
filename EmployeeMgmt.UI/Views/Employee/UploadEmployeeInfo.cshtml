@@ -1,0 +1,87 @@
+﻿@model IEnumerable<EmployeeMgmt.ViewModel.EmployeeViewModel>
+@{
+    Layout = "";
+}
+
+<div>
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger test1" id="error-alert">
+            <button type="button" class="close" data-dismiss="alert">x</button>
+            <strong>Warning:</strong>  @ViewBag.Error
+        </div>
+    }
+</div>
+
+
+<div style="overflow-x: scroll;">
+    <table class="table table-responsive" id="tblEmployee">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.EmployeeId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FullName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.DateofBirth)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Gender)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Salary)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Designation)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Error_Column)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Error_Msg)
+                </th>
+
+            </tr>
+        </thead>
+        @{
+            int sno = 1;
+        }
+        <tbody>
+            @foreach (var item in Model)
+            {
+
+
+                <tr>
+                    <td>
+                        @sno
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FullName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DateofBirth)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Gender)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Salary)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Designation)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Error_Column)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Error_Msg)
+                    </td>
+                </tr>
+                sno++;
+
+            }
+        </tbody>
+    </table>
+</div>

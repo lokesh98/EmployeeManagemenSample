@@ -1,0 +1,261 @@
+﻿@model EmployeeMgmt.ViewModel.EmployeeViewModel
+@{
+    ViewBag.Title = "Manage Employee";
+}
+
+<div>
+    @if (TempData["success_msg"] != null)
+    {
+        <div class="alert alert-success test" id="success-alert">
+            <button type="button" class="close" data-dismiss="alert">x</button>
+            <strong>Success:</strong>  @TempData["success_msg"].ToString().
+        </div>
+    }
+    @if (TempData["error_msg"] != null)
+    {
+        <div class="alert alert-danger test1" id="error-alert">
+            <button type="button" class="close" data-dismiss="alert">x</button>
+            <strong>Error:</strong>  @TempData["error_msg"].ToString().
+        </div>
+    }
+</div>
+
+<div class="row bg-title">
+    <div class="col-lg-8 col-md-6 col-sm-6 col-xs-12">
+        <h4 class="page-title" style="cursor: s-resize;"><span>@ViewBag.Title</span></h4>
+    </div>
+
+    <div class="col-lg-4 col-md-6 col-sm-6 col-xs-12">
+        <ul class="nav nav-pills pull-right" role="tablist">
+            <li class="nav-item" role="presentation">
+                @Html.ActionLink("Create New", "Create", null, htmlAttributes: new { @class = "nav-link bg-primary" })
+
+            </li>
+        </ul>
+
+    </div>
+</div>
+
+<div class="row">
+    @using (Html.BeginForm("Index"))
+    {
+        <div class="col-lg-12">
+            <div class="form-group col-md-6">
+                @Html.LabelFor(model => model.FullName, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.FullName, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                </div>
+            </div>
+
+            <div class="form-group col-md-6">
+                @Html.LabelFor(model => model.Gender, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.DropDownList("Gender", ViewData["genderList"] as List<SelectListItem>, "Select Gender", new { @class = "form-control input-sm" })
+                </div>
+            </div>
+
+
+            <div class="form-group col-md-6">
+                @Html.LabelFor(model => model.Designation, htmlAttributes: new { @class = "control-label col-md-4" })
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.Designation, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                </div>
+            </div>
+            <div class="form-group col-md-6">
+                <label class="control-label col-md-4">Imported /Created Date</label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.ImportedDate, new { htmlAttributes = new { @class = "form-control input-sm" } })
+                </div>
+            </div>
+            <div class="form-group col-md-6">
+                <label class="control-label col-md-4">Dob Range From: </label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.from_dob, new { htmlAttributes = new { @class = "form-control input-sm", placeholder = "Select From Date" } })
+                </div>
+            </div>
+            <div class="form-group col-md-6">
+                <label class="control-label col-md-4">To: </label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.to_dob, new { htmlAttributes = new { @class = "form-control input-sm", placeholder = "Select To Date" } })
+                </div>
+            </div>
+            <div class="form-group col-md-6">
+                <label class="control-label col-md-4">Salary Range From: </label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.from_salary, new { htmlAttributes = new { @class = "form-control input-sm", placeholder = "Salary e.g. 1000" } })
+                </div>
+            </div>
+            <div class="form-group col-md-6">
+                <label class="control-label col-md-4">To: </label>
+                <div class="col-md-8">
+                    @Html.EditorFor(model => model.Salary, new { htmlAttributes = new { @class = "form-control input-sm", placeholder = "Salary e.g. 1000" } })
+                </div>
+            </div>
+
+            <div class="form-group col-md-11 ">
+                <div class="pull-right">
+                    <input type="submit" value="Search" class="btn btn-success" />
+                    @Html.ActionLink("Reset", "Index", null, new { @class = "btn btn-danger" })
+
+                </div>
+
+            </div>
+        </div>
+    }
+
+    <div style="margin-left:30px">
+        <button id="btnExportToPdf" class="btn btn-sm btn-success export_data hide_btn" onclick="Export('pdf')">Export To Pdf</button>
+        <button id="btnExportToExcel" class="btn btn-sm btn-success export_data hide_btn" onclick="Export('excel')">Export To Excel</button>
+        <button id="btnExportToCSV" class="btn btn-sm btn-success export_data hide_btn" onclick="Export('csv')">Export To CSV</button>
+        <a href="javascript:window.print()" class="btn btn-sm btn-success export_data hide_btn"> Print This Page</a>
+    </div>
+
+</div>
+<br />
+<div class="container">
+    <div class="row">
+
+        <table class="table table-bordered  table-hover">
+            <tr>
+                <th>
+                    SN
+                    <input type="checkbox" id="checkBoxAll" class="custom-checkbox" />
+                    @Html.Hidden("hdnChkAll", new { CheckAll = ViewBag.CheckAll })
+                </th>
+                <th>
+                    @Html.ActionLink("FullName", "Index", new { Sorting_Order = ViewBag.FullName })
+                </th>
+                <th>
+                    @Html.ActionLink("DateofBirth", "Index", new { Sorting_Order = ViewBag.DateofBirth })
+                </th>
+                <th>
+                    @Html.ActionLink("Gender", "Index", new { Sorting_Order = ViewBag.Gender })
+                </th>
+                <th>
+                    @Html.ActionLink("Salary", "Index", new { Sorting_Order = ViewBag.Salary })
+                </th>
+                <th>
+                    @Html.ActionLink("Designation", "Index", new { Sorting_Order = ViewBag.Designation })
+                </th>
+                <th>
+                    @Html.ActionLink("ImportedDate", "Index", new { Sorting_Order = ViewBag.ImportedDate })
+                </th>
+
+                <th>Edit</th>
+            </tr>
+
+            @foreach (var item in Model.PaginatedList.PaginatedData())
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EmployeeId) <span style="margin-left:10px;"></span>
+                        <input type="checkbox" name="ID" value="@item.EmployeeId" class="custom-checkbox chkCheckBoxId" onclick="showExport(chk_@item.EmployeeId)" id="chk_@item.EmployeeId" />
+
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FullName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.DateofBirth)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Gender)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Salary)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Designation)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.ImportedDate)
+                    </td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { id = item.EmployeeId }, new { @class = "glyphicon glyphicon-pencil" })
+                    </td>
+
+                </tr>
+            }
+
+        </table>
+        <div id='Paging' style="text-align:center">
+            <ul class="pagination">
+                @for (int i = 1; i <= Model.PaginatedList.PageCount(); i++)
+                {
+                    <li class="@(i == Model.PaginatedList.CurrentPage ? "page-item active" : "page-item")">
+                        <a class="page-link" href="@Url.Action("Index", new {model= Model,
+                              FullName = Model.FullName,Gender= Model.Gender, Designation= Model.Designation,
+                              ImportedDate= Model.ImportedDate, from_dob= Model.from_dob,  to_dob= Model.to_dob, from_salary= Model.from_salary,
+                               Salary= Model.Salary,Sorting_Order= ViewBag.CurrentSortOrder,page = i })">@i</a>
+                 </li>
+
+                   }
+            </ul>
+            <span>
+                Page @(Model.PaginatedList.PageCount() < Model.PaginatedList.CurrentPage ? 0 : Model.PaginatedList.CurrentPage)
+                of @Model.PaginatedList.PageCount()
+            </span>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        $('#checkBoxAll').click(function () {
+            if ($(this).is(":checked")) {
+                $(".chkCheckBoxId").prop("checked", true)
+                $("#hdnChkAll").val(true);
+
+                $(".export_data").removeClass("hide_btn").addClass("show_btn");
+            }
+            else {
+                $(".chkCheckBoxId").prop("checked", false)
+                $(".export_data").removeClass("show_btn").addClass("hide_btn");
+            }
+        });
+    });
+
+    function showExport(chkAttribut) {
+        //alert();
+        if ($("#" + chkAttribut.id).prop('checked') == true) {
+            $(".export_data").removeClass("hide_btn").addClass("show_btn");
+        } else {
+            $(".export_data").removeClass("show_btn").addClass("hide_btn");
+        }
+    }
+
+    function Export(exportTo) {
+        var selectedEmp = new Array();
+        if ($("#checkBoxAll").prop('checked') == true) {
+            debugger;
+        }
+        else {
+
+            $("input.chkCheckBoxId:checked").each(function () {
+                selectedEmp.push($(this).val());
+            });
+
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "/ManageEmployee/ExportAll",
+            data: JSON.stringify({ 'empIds': selectedEmp, 'exportTo': exportTo }),
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (res) {
+                window.location = '/ManageEmployee/Download';
+
+            },
+            error: function () {
+
+                window.location = '/Home/Unauthorized';
+            }
+        });
+    }
+
+
+
+</script>
